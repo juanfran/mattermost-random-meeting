@@ -4,8 +4,55 @@ import (
 	"fmt"
 	"testing"
 
+	combinations "github.com/mxschmitt/golang-combinations"
 	"github.com/stretchr/testify/assert"
 )
+
+func runMeetings(numRuns int, users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
+	for i := 1; i < numRuns; i++ {
+		result := getMeetings(
+			users,
+			usersPerMeeting,
+			previousMeetings,
+		)
+
+		previousMeetings = append(previousMeetings, result[:]...)
+	}
+
+	return previousMeetings
+}
+
+func meetingExist(users []string, meetings [][]string) bool {
+	for _, meeting := range meetings {
+		usersInMeeting := true
+
+		for _, userId := range users {
+			if !Contains(meeting, userId) {
+				usersInMeeting = false
+				break
+			}
+		}
+
+		if usersInMeeting {
+			return true
+		}
+	}
+
+	return false
+}
+
+func getAllCombinations(users []string, size int) [][]string {
+	result := [][]string{}
+	combinations := combinations.All(users)
+
+	for _, combination := range combinations {
+		if len(combination) == 3 {
+			result = append(result, combination)
+		}
+	}
+
+	return result
+}
 
 func TestGetUserFrequencyMeetings(t *testing.T) {
 	assert := assert.New(t)
@@ -59,21 +106,50 @@ func TestGetUserFrequencyMeetingsList(t *testing.T) {
 	assert.Equal(result[3], "user3")
 }
 
-func TestGetMeetings(t *testing.T) {
+func TestEvenGetMeetings(t *testing.T) {
 	assert := assert.New(t)
-	users := []string{"user1", "user2", "user3", "user4", "user5"}
+	users := []string{"user1", "user2", "user3", "user4", "user5", "user6"}
 
 	previousMeetings := [][]string{}
+	combinations := getAllCombinations(users, 3)
 
-	result := getMeetings(
+	fmt.Println(combinations)
+
+	result := runMeetings(
+		len(combinations),
 		users,
 		3,
 		previousMeetings,
 	)
 
-	fmt.Println(result)
-
-	assert.Equal(4, 4)
+	for _, combination := range combinations {
+		assert.True(meetingExist(combination, result))
+	}
 }
 
-// modo impar
+// func TestOddGetMeetings(t *testing.T) {
+// 	assert := assert.New(t)
+// 	users := []string{"user1", "user2", "user3"}
+
+// 	previousMeetings := [][]string{}
+
+// 	result := runMeetings(
+// 		len(users)*len(users),
+// 		users,
+// 		2,
+// 		previousMeetings,
+// 	)
+
+// 	meeting := []string{"user1", "user2"}
+// 	assert.True(meetingExist(meeting, result))
+
+// 	meeting = []string{"user1", "user3"}
+// 	assert.True(meetingExist(meeting, result))
+
+// 	meeting = []string{"user2", "user3"}
+// 	assert.True(meetingExist(meeting, result))
+// }
+
+// modo impar =>
+// modo menos gente
+// modo añadir uno más de forma justa

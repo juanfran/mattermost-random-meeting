@@ -60,3 +60,23 @@ func Filter(slice []string, filter []string) []string {
 
 	return result
 }
+
+func Factorial(n int) int {
+	if n > 0 {
+		return n * Factorial(n-1)
+	}
+
+	return 1
+}
+
+func Combinations(n int, r int) int {
+	if n < r {
+		return 0
+	}
+
+	if n == r {
+		return 0
+	}
+
+	return Factorial(n) / (Factorial(r) * Factorial(n-r))
+}

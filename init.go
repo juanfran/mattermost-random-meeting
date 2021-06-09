@@ -1,35 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"sort"
 )
-
-func main() {
-	fmt.Println("Hello, World!")
-}
-
-func hola() string {
-	return "Hello, world!"
-}
-
-/*
-past meetings:
-
-user1, user3, user2
-user1, user4, user5
-
-number of users: 3
-
-available users: ["user1", "user2", "user3", "user4", "user5", "user6"]
-*/
-
-/*
-{
-  user3: 2,
-  user1: 0,
-}
-*/
 
 func getUserFrequencyMeetings(userId string, users []string, previousMeetings [][]string) map[string]int {
 	frequncy := make(map[string]int)
@@ -96,7 +69,23 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 	return meetings
 }
 
-// "user1", "user2", "user3", "user4", "user5"
+func runMeetings(users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
+	numMeetings := Combinations(len(users), usersPerMeeting)
 
-// ["user1", "user2", "user3"]
-// ["user4", "user5", "random"]
+	for len(previousMeetings) < numMeetings {
+		meetings := getMeetings(
+			users,
+			usersPerMeeting,
+			previousMeetings,
+		)
+
+		for _, meeting := range meetings {
+			if len(previousMeetings) < numMeetings {
+				previousMeetings = append(previousMeetings, meeting)
+			}
+		}
+
+	}
+
+	return previousMeetings
+}

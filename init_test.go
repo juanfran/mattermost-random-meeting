@@ -8,20 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func runMeetings(numRuns int, users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
-	for i := 1; i < numRuns; i++ {
-		result := getMeetings(
-			users,
-			usersPerMeeting,
-			previousMeetings,
-		)
-
-		previousMeetings = append(previousMeetings, result[:]...)
-	}
-
-	return previousMeetings
-}
-
 func meetingExist(users []string, meetings [][]string) bool {
 	for _, meeting := range meetings {
 		usersInMeeting := true
@@ -46,13 +32,27 @@ func getAllCombinations(users []string, size int) [][]string {
 	combinations := combinations.All(users)
 
 	for _, combination := range combinations {
-		if len(combination) == 3 {
+		if len(combination) == size {
 			result = append(result, combination)
 		}
 	}
 
 	return result
 }
+
+// func TestGetUserWithExtraMeeting(t *testing.T) {
+// 	assert := assert.New(t)
+
+// 	previousMeetings := [][]string{
+// 		{"user1", "user2"},
+// 		{"user3", "user4"},
+// 		{"user5", "user6", "user7"},
+// 	}
+
+// 	result := getUserWithExtraMeeting(previousMeetings)
+
+// 	assert.Equal(result, "user7")
+// }
 
 func TestGetUserFrequencyMeetings(t *testing.T) {
 	assert := assert.New(t)
@@ -113,19 +113,23 @@ func TestEvenGetMeetings(t *testing.T) {
 	previousMeetings := [][]string{}
 	combinations := getAllCombinations(users, 3)
 
-	fmt.Println(combinations)
-
 	result := runMeetings(
-		len(combinations),
 		users,
 		3,
 		previousMeetings,
 	)
 
+	fmt.Println(len(result))
+
+	assert.Equal(len(combinations), Combinations(len(users), 3))
+	assert.Equal(len(combinations), len(result))
+
 	for _, combination := range combinations {
 		assert.True(meetingExist(combination, result))
 	}
 }
+
+//cuando termina puede haber personas sin asignar
 
 // func TestOddGetMeetings(t *testing.T) {
 // 	assert := assert.New(t)
@@ -134,20 +138,26 @@ func TestEvenGetMeetings(t *testing.T) {
 // 	previousMeetings := [][]string{}
 
 // 	result := runMeetings(
-// 		len(users)*len(users),
 // 		users,
 // 		2,
 // 		previousMeetings,
 // 	)
 
-// 	meeting := []string{"user1", "user2"}
-// 	assert.True(meetingExist(meeting, result))
+// 	combinations := getAllCombinations(users, 2)
+// 	fmt.Println(combinations)
 
-// 	meeting = []string{"user1", "user3"}
-// 	assert.True(meetingExist(meeting, result))
+// 	fmt.Println(result)
 
-// 	meeting = []string{"user2", "user3"}
-// 	assert.True(meetingExist(meeting, result))
+// 	assert.True(true)
+
+// 	// meeting := []string{"user1", "user2"}
+// 	// assert.True(meetingExist(meeting, result))
+
+// 	// meeting = []string{"user1", "user3"}
+// 	// assert.True(meetingExist(meeting, result))
+
+// 	// meeting = []string{"user2", "user3"}
+// 	// assert.True(meetingExist(meeting, result))
 // }
 
 // modo impar =>

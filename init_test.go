@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	combinations "github.com/mxschmitt/golang-combinations"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,18 +26,18 @@ func meetingExist(users []string, meetings [][]string) bool {
 	return false
 }
 
-func getAllCombinations(users []string, size int) [][]string {
-	result := [][]string{}
-	combinations := combinations.All(users)
+// func getAllCombinations(users []string, size int) [][]string {
+// 	result := [][]string{}
+// 	combinations := combinations.All(users)
 
-	for _, combination := range combinations {
-		if len(combination) == size {
-			result = append(result, combination)
-		}
-	}
+// 	for _, combination := range combinations {
+// 		if len(combination) == size {
+// 			result = append(result, combination)
+// 		}
+// 	}
 
-	return result
-}
+// 	return result
+// }
 
 // func TestGetUserWithExtraMeeting(t *testing.T) {
 // 	assert := assert.New(t)
@@ -106,28 +105,87 @@ func TestGetUserFrequencyMeetingsList(t *testing.T) {
 	assert.Equal(result[3], "user3")
 }
 
-func TestEvenGetMeetings(t *testing.T) {
+func TestGetUserListByDate(t *testing.T) {
 	assert := assert.New(t)
-	users := []string{"user1", "user2", "user3", "user4", "user5", "user6"}
+	userId := "user1"
+	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7"}
 
-	previousMeetings := [][]string{}
-	combinations := getAllCombinations(users, 3)
+	previousMeetings := [][]string{
+		{"user1", "user2", "user3"},
+		{"user6", "user7", "user4"},
+		{"user1", "user5", "user3"},
+		{"user1", "user2", "user4"},
+	}
 
-	result := runMeetings(
+	result := getUserListByDate(
+		userId,
 		users,
-		3,
 		previousMeetings,
 	)
 
-	fmt.Println(len(result))
-
-	assert.Equal(len(combinations), Combinations(len(users), 3))
-	assert.Equal(len(combinations), len(result))
-
-	for _, combination := range combinations {
-		assert.True(meetingExist(combination, result))
-	}
+	assert.Equal(result[0], "user7")
+	assert.Equal(result[1], "user6")
+	assert.Equal(result[2], "user4")
+	assert.Equal(result[3], "user5")
+	assert.Equal(result[4], "user3")
+	assert.Equal(result[5], "user2")
 }
+
+func TestWeighUserPriority(t *testing.T) {
+	assert := assert.New(t)
+
+	users := [][]string{
+		{"user1", "user2", "user3"},
+		{"user3", "user1", "user2"},
+	}
+
+	result := weighUserPriority(users)
+
+	assert.Equal(1, result["user1"])
+	assert.Equal(3, result["user2"])
+	assert.Equal(2, result["user3"])
+}
+
+func TestEvenGetMeetings(t *testing.T) {
+	// assert := assert.New(t)
+
+	users := []string{"user1", "user2", "user3", "user4", "user5", "user6"}
+
+	previousMeetings := [][]string{
+		{"user1", "user2", "user3"},
+		{"user3", "user1", "user2"},
+	}
+
+	result := getMeetings(users, 3, previousMeetings)
+
+	fmt.Println(result)
+}
+
+// func TestEvenGetMeetings(t *testing.T) {
+// assert := assert.New(t)
+// users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "0", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"}
+
+// previousMeetings := [][]string{}
+// no tocar!!
+// combinations := getAllCombinations(users, 3)
+
+// result := runMeetings(
+// 	users,
+// 	3,
+// 	previousMeetings,
+// )
+
+// fmt.Println(len(combinations))
+
+// fmt.Println("result", Combinations(25, 3))
+
+// assert.Equal(len(combinations), Combinations(len(users), 3))
+// assert.Equal(len(combinations), len(result))
+
+// for _, combination := range combinations {
+// 	assert.True(meetingExist(combination, result))
+// }
+// }
 
 //cuando termina puede haber personas sin asignar
 

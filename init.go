@@ -80,7 +80,7 @@ func getUserListByDate(userId string, users []string, previousMeetings [][]strin
 	return usersList
 }
 
-// users is the getUserFrequencyMeetingsList of the users involve, so the function return how far in time was the last meeting for all array of users
+// users is the getUserListByDate of the users involve, so the function return how far in time was the last meeting for all array of users
 func weighUserPriority(users [][]string) map[string]int {
 	priority := make(map[string]int)
 
@@ -92,6 +92,16 @@ func weighUserPriority(users [][]string) map[string]int {
 
 	return priority
 }
+func weighUserPriorityCandidate(users [][]string) string {
+	usersPriorities := weighUserPriority(users)
+	usersPrioritiesList := GetIntStringKeys(usersPriorities)
+
+	sort.SliceStable(usersPrioritiesList, func(i, j int) bool {
+		return usersPriorities[usersPrioritiesList[i]] < usersPriorities[usersPrioritiesList[j]]
+	})
+
+	return usersPrioritiesList[0]
+}
 
 func sortMeetingBySize(meetings [][]string) [][]string {
 	sort.SliceStable(meetings, func(i, j int) bool {
@@ -101,6 +111,9 @@ func sortMeetingBySize(meetings [][]string) [][]string {
 	return meetings
 }
 
+/*
+ previousMeetings: from newest to oldest meeting
+*/
 func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
 	meetings := [][]string{}
 
@@ -108,7 +121,7 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 		return meetings
 	}
 
-	ShuffleArrayStrings(users)
+	// ShuffleArrayStrings(users)
 
 	alreadyInMeeting := []string{}
 
@@ -120,12 +133,20 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 		meeting := []string{userId}
 
 		for len(meeting) < usersPerMeeting {
-			index := len(meeting) - 1
-			previousUserMeetingsByDate := getUserListByDate(meeting[index], users, previousMeetings)
-			previousUserMeetingsByDate = Filter(previousUserMeetingsByDate, append(alreadyInMeeting, userId))
+			previousUserMeetingsByDate := [][]string{}
+
+			for _, meetingUserId := range meeting {
+				userMeetingCandidates := getUserListByDate(meetingUserId, users, previousMeetings)
+				userMeetingCandidates = Filter(userMeetingCandidates, append(alreadyInMeeting, meeting[:]...))
+
+				if len(userMeetingCandidates) > 0 {
+					previousUserMeetingsByDate = append(previousUserMeetingsByDate, userMeetingCandidates)
+				}
+			}
 
 			if len(previousUserMeetingsByDate) > 0 {
-				meeting = append(meeting, previousUserMeetingsByDate[0])
+				candidate := weighUserPriorityCandidate(previousUserMeetingsByDate)
+				meeting = append(meeting, candidate)
 			} else {
 				break
 			}

@@ -57,6 +57,18 @@ func getAllCombinations(users []string, size int) [][]string {
 	return result
 }
 
+func getCountUserMeet(userId string, user2Id string, previousMeetings [][]string) int {
+	count := 0
+
+	for _, meeting := range previousMeetings {
+		if Contains(meeting, userId) && Contains(meeting, user2Id) {
+			count++
+		}
+	}
+
+	return count
+}
+
 func getMeetingCandidates(userInMeeting []string, users []string, previousMeetings [][]string) []string {
 	priority := make(map[string]int)
 
@@ -80,7 +92,7 @@ func getMeetingCandidates(userInMeeting []string, users []string, previousMeetin
 		}
 
 		for index, userId := range usersList {
-			priority[userId] = priority[userId] + index
+			priority[userId] = priority[userId] + (index * index) + getCountUserMeet(userMeeting, userId, previousMeetings)
 		}
 	}
 

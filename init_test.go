@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -77,6 +78,7 @@ func TestGetUserFrequencyMeetingsList(t *testing.T) {
 	assert.Equal(result[3], "user3")
 }
 
+// need work, el count nuevo
 func TestGetUserListByDate(t *testing.T) {
 	assert := assert.New(t)
 	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7"}
@@ -133,20 +135,25 @@ func TestOddGetMeetings(t *testing.T) {
 	assert.True(meetingExist([]string{"user2", "user5", "user6"}, result))
 }
 
+// need work
 func TestGetMeetings(t *testing.T) {
 	assert := assert.New(t)
 	frequency := make(map[string]int)
-	users := []string{"user1", "user2", "user3", "user4"}
+	frequency2 := make(map[string]int)
+	frequency3 := make(map[string]int)
+	users := []string{"user1", "user2", "user3", "user4", "user5", "user6"}
 
 	previousMeetings := [][]string{}
 
-	numMeetings := 18
+	numMeetings := 4 * 12
 
 	for len(previousMeetings) < numMeetings {
-		meetings := getMeetings(users, 2, previousMeetings)
+		meetings := getMeetingsShuffleUsers(users, 3, previousMeetings)
 
 		previousMeetings = append(meetings, previousMeetings...)
 	}
+
+	fmt.Println(previousMeetings)
 
 	testedUser := "user1"
 
@@ -159,11 +166,34 @@ func TestGetMeetings(t *testing.T) {
 			}
 		}
 	}
+	for _, meeting := range previousMeetings {
+		if Contains(meeting, "user2") {
+			for _, userMeeting := range meeting {
+				if userMeeting != "user2" {
+					frequency2[userMeeting]++
+				}
+			}
+		}
+	}
+
+	for _, meeting := range previousMeetings {
+		if Contains(meeting, "user3") {
+			for _, userMeeting := range meeting {
+				if userMeeting != "user3" {
+					frequency3[userMeeting]++
+				}
+			}
+		}
+	}
 
 	avgMeetingPerUser := (numMeetings / 2) / (len(users) - 1)
 	usersMeetUser1 := GetIntStringKeys(frequency)
 
-	assert.Equal(len(usersMeetUser1), 3)
+	fmt.Println(frequency)
+	fmt.Println(frequency2)
+	fmt.Println(frequency3)
+
+	assert.Equal(len(usersMeetUser1), 5)
 
 	for _, userId := range usersMeetUser1 {
 		assert.Equal(frequency[userId], avgMeetingPerUser)

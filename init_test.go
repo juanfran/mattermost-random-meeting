@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,33 +24,6 @@ func meetingExist(users []string, meetings [][]string) bool {
 
 	return false
 }
-
-// func getAllCombinations(users []string, size int) [][]string {
-// 	result := [][]string{}
-// 	combinations := combinations.All(users)
-
-// 	for _, combination := range combinations {
-// 		if len(combination) == size {
-// 			result = append(result, combination)
-// 		}
-// 	}
-
-// 	return result
-// }
-
-// func TestGetUserWithExtraMeeting(t *testing.T) {
-// 	assert := assert.New(t)
-
-// 	previousMeetings := [][]string{
-// 		{"user1", "user2"},
-// 		{"user3", "user4"},
-// 		{"user5", "user6", "user7"},
-// 	}
-
-// 	result := getUserWithExtraMeeting(previousMeetings)
-
-// 	assert.Equal(result, "user7")
-// }
 
 func TestGetUserFrequencyMeetings(t *testing.T) {
 	assert := assert.New(t)
@@ -107,64 +79,38 @@ func TestGetUserFrequencyMeetingsList(t *testing.T) {
 
 func TestGetUserListByDate(t *testing.T) {
 	assert := assert.New(t)
-	userId := "user1"
 	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7"}
 
 	previousMeetings := [][]string{
 		{"user1", "user2", "user3"},
-		{"user6", "user7", "user4"},
+		{"user6", "user4", "user2"},
 		{"user1", "user5", "user3"},
 		{"user1", "user2", "user4"},
 	}
 
-	result := getUserListByDate(
-		userId,
+	meeting := []string{"user1", "user2"}
+
+	result := getMeetingCandidates(
+		meeting,
 		users,
 		previousMeetings,
 	)
 
+	// user7 first because neither user1 and user2 meet it
 	assert.Equal(result[0], "user7")
-	assert.Equal(result[1], "user6")
-	assert.Equal(result[2], "user4")
-	assert.Equal(result[3], "user5")
+
+	// user5 or user6 can be in [1]
+	// user2 didn't meet user5
+	if result[1] == "user5" {
+		assert.Equal(result[2], "user6")
+	} else {
+		// user1 didn't meet user6
+		assert.Equal(result[1], "user6")
+		assert.Equal(result[2], "user5")
+	}
+
+	assert.Equal(result[3], "user4")
 	assert.Equal(result[4], "user3")
-	assert.Equal(result[5], "user2")
-}
-
-func TestWeighUserPriority(t *testing.T) {
-	assert := assert.New(t)
-
-	users := [][]string{
-		{"user1", "user2", "user3"},
-		{"user3", "user1", "user2"},
-	}
-
-	result := weighUserPriority(users)
-
-	assert.Equal(1, result["user1"])
-	assert.Equal(3, result["user2"])
-	assert.Equal(2, result["user3"])
-}
-
-func TestEvenGetMeetings(t *testing.T) {
-	assert := assert.New(t)
-
-	users := []string{"user1", "user2", "user3", "user4", "user5", "user6"}
-
-	previousMeetings := [][]string{
-		{"user1", "user2", "user4"},
-		{"user1", "user5", "user6"},
-		{"user3", "user1", "user4"},
-		{"user3", "user2", "user5"},
-		{"user3", "user6", "user5"},
-	}
-
-	result := getMeetings(users, 3, previousMeetings)
-
-	assert.Equal(2, len(result))
-	assert.Equal("user1", result[0][0])
-	assert.Equal("user3", result[0][1])
-	assert.Equal("user6", result[0][2])
 }
 
 func TestOddGetMeetings(t *testing.T) {
@@ -175,36 +121,70 @@ func TestOddGetMeetings(t *testing.T) {
 	previousMeetings := [][]string{
 		{"user1", "user2", "user3"},
 		{"user4", "user5", "user6"},
+		{"user1", "user5", "user6"},
+		{"user2", "user4", "user7"},
 	}
 
 	result := getMeetings(users, 3, previousMeetings)
 
 	assert.Equal(2, len(result))
-	assert.Equal("user1", result[0][0])
-	assert.Equal("user7", result[0][1])
-	assert.Equal("user6", result[0][2])
-	assert.Equal("user3", result[0][3])
+	assert.True(meetingExist([]string{"user1", "user3", "user4", "user7"}, result))
+	assert.True(meetingExist([]string{"user2", "user5", "user6"}, result))
 }
 
 func TestGetMeetings(t *testing.T) {
-	// assert := assert.New(t)
-
-	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7"}
+	assert := assert.New(t)
+	frequency := make(map[string]int)
+	users := []string{"user1", "user2", "user3", "user4"}
 
 	previousMeetings := [][]string{}
 
-	numMeetings := 20
+	numMeetings := 18
 
 	for len(previousMeetings) < numMeetings {
-		meetings := getMeetings(users, 3, previousMeetings)
+		meetings := getMeetings(users, 2, previousMeetings)
 
-		for _, meeting := range meetings {
+		previousMeetings = append(meetings, previousMeetings...)
+	}
 
-			if len(previousMeetings) < numMeetings {
-				previousMeetings = append(previousMeetings, meeting)
+	testedUser := "user1"
+
+	for _, meeting := range previousMeetings {
+		if Contains(meeting, testedUser) {
+			for _, userMeeting := range meeting {
+				if userMeeting != testedUser {
+					frequency[userMeeting]++
+				}
 			}
 		}
 	}
 
-	fmt.Println(previousMeetings)
+	avgMeetingPerUser := (numMeetings / 2) / (len(users) - 1)
+	usersMeetUser1 := GetIntStringKeys(frequency)
+
+	assert.Equal(len(usersMeetUser1), 3)
+
+	for _, userId := range usersMeetUser1 {
+		assert.Equal(frequency[userId], avgMeetingPerUser)
+	}
+}
+
+func TestGetMeetingsTwo(t *testing.T) {
+	assert := assert.New(t)
+	users := []string{"user1", "user2", "user3", "user4"}
+
+	previousMeetings := [][]string{}
+
+	numMeetings := int(Combinations(len(users), 2))
+	combinations := getAllCombinations(users, 2)
+
+	for len(previousMeetings) < numMeetings {
+		meetings := getMeetings(users, 2, previousMeetings)
+
+		previousMeetings = append(meetings, previousMeetings...)
+	}
+
+	for _, combination := range combinations {
+		assert.True(meetingExist(combination, previousMeetings))
+	}
 }

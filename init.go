@@ -57,50 +57,40 @@ func getAllCombinations(users []string, size int) [][]string {
 	return result
 }
 
-func getUserListByDate(userId string, users []string, previousMeetings [][]string) []string {
-	usersList := []string{}
+func getMeetingCandidates(userInMeeting []string, users []string, previousMeetings [][]string) []string {
+	priority := make(map[string]int)
 
-	for _, meeting := range previousMeetings {
-		if Contains(meeting, userId) {
-			for _, meetingUserId := range meeting {
-				if meetingUserId != userId && !Contains(usersList, meetingUserId) && Contains(users, meetingUserId) {
-					usersList = Prepend(usersList, meetingUserId)
+	for _, userMeeting := range userInMeeting {
+		usersList := []string{}
+
+		for _, meeting := range previousMeetings {
+			if Contains(meeting, userMeeting) {
+				for _, meetingUserId := range meeting {
+					if !Contains(userInMeeting, meetingUserId) && !Contains(usersList, meetingUserId) && Contains(users, meetingUserId) {
+						usersList = Prepend(usersList, meetingUserId)
+					}
 				}
 			}
 		}
-	}
 
-	// users you have not met with.
-	for _, meetingUserId := range users {
-		if meetingUserId != userId && !Contains(usersList, meetingUserId) {
-			usersList = Prepend(usersList, meetingUserId)
+		for _, meetingUserId := range users {
+			if !Contains(usersList, meetingUserId) && !Contains(userInMeeting, meetingUserId) {
+				priority[meetingUserId] = priority[meetingUserId] - len(users)
+			}
 		}
-	}
 
-	return usersList
-}
-
-// users is the getUserListByDate of the users involve, so the function return how far in time was the last meeting for all array of users
-func weighUserPriority(users [][]string) map[string]int {
-	priority := make(map[string]int)
-
-	for _, userList := range users {
-		for index, userId := range userList {
+		for index, userId := range usersList {
 			priority[userId] = priority[userId] + index
 		}
 	}
 
-	return priority
-}
-func weighUserPriorityCandidate(users [][]string) string {
-	usersPriorities := weighUserPriority(users)
-	usersPrioritiesList := GetIntStringKeys(usersPriorities)
+	usersPrioritiesList := GetIntStringKeys(priority)
 
 	sort.SliceStable(usersPrioritiesList, func(i, j int) bool {
-		return usersPriorities[usersPrioritiesList[i]] < usersPriorities[usersPrioritiesList[j]]
+		return priority[usersPrioritiesList[i]] < priority[usersPrioritiesList[j]]
 	})
 
-	return usersPrioritiesList[0]
+	return usersPrioritiesList
 }
 
 func sortMeetingBySize(meetings [][]string) [][]string {
@@ -109,6 +99,12 @@ func sortMeetingBySize(meetings [][]string) [][]string {
 	})
 
 	return meetings
+}
+
+func getMeetingsShuffleUsers(users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
+	ShuffleArrayStrings(users)
+
+	return getMeetings(users, usersPerMeeting, previousMeetings)
 }
 
 /*
@@ -121,8 +117,6 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 		return meetings
 	}
 
-	// ShuffleArrayStrings(users)
-
 	alreadyInMeeting := []string{}
 
 	for _, userId := range users {
@@ -133,20 +127,11 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 		meeting := []string{userId}
 
 		for len(meeting) < usersPerMeeting {
-			previousUserMeetingsByDate := [][]string{}
+			userMeetingCandidates := getMeetingCandidates(meeting, users, previousMeetings)
+			userMeetingCandidates = Filter(userMeetingCandidates, append(alreadyInMeeting, meeting[:]...))
 
-			for _, meetingUserId := range meeting {
-				userMeetingCandidates := getUserListByDate(meetingUserId, users, previousMeetings)
-				userMeetingCandidates = Filter(userMeetingCandidates, append(alreadyInMeeting, meeting[:]...))
-
-				if len(userMeetingCandidates) > 0 {
-					previousUserMeetingsByDate = append(previousUserMeetingsByDate, userMeetingCandidates)
-				}
-			}
-
-			if len(previousUserMeetingsByDate) > 0 {
-				candidate := weighUserPriorityCandidate(previousUserMeetingsByDate)
-				meeting = append(meeting, candidate)
+			if len(userMeetingCandidates) > 0 {
+				meeting = append(meeting, userMeetingCandidates[0])
 			} else {
 				break
 			}
@@ -165,25 +150,4 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 	}
 
 	return meetings
-}
-
-func runMeetings(users []string, usersPerMeeting int, previousMeetings [][]string) [][]string {
-	numMeetings := Combinations(len(users), usersPerMeeting)
-
-	for uint64(len(previousMeetings)) < numMeetings {
-		meetings := getMeetings(
-			users,
-			usersPerMeeting,
-			previousMeetings,
-		)
-
-		for _, meeting := range meetings {
-			if uint64(len(previousMeetings)) < numMeetings {
-				previousMeetings = append(previousMeetings, meeting)
-			}
-		}
-
-	}
-
-	return previousMeetings
 }

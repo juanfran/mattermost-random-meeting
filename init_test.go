@@ -128,6 +128,7 @@ func TestOddGetMeetings(t *testing.T) {
 	result := getMeetings(users, 3, previousMeetings)
 
 	assert.Equal(2, len(result))
+	// todo: random fail
 	assert.True(meetingExist([]string{"user1", "user3", "user4", "user7"}, result))
 	assert.True(meetingExist([]string{"user2", "user5", "user6"}, result))
 }

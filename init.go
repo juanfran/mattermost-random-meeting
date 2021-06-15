@@ -92,7 +92,7 @@ func getMeetingCandidates(userInMeeting []string, users []string, previousMeetin
 		}
 
 		for index, userId := range usersList {
-			priority[userId] = priority[userId] + (index * index) + getCountUserMeet(userMeeting, userId, previousMeetings)
+			priority[userId] = priority[userId] + (index * index) + getCountUserMeet(userMeeting, userId, previousMeetings)*2
 		}
 	}
 

@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"reflect"
 	"time"
 )
 
@@ -32,6 +33,12 @@ func Remove(slice []string, toRemove string) []string {
 
 func Prepend(data []string, item string) []string {
 	data = append([]string{item}, data...)
+	return data
+}
+
+// todo
+func PrependSlice(data []string, prepend []string) [][]string {
+	data = append([][]string{prepend}, data...)
 	return data
 }
 
@@ -82,4 +89,12 @@ func Combinations(n int, r int) uint64 {
 	}
 
 	return Factorial(un) / (Factorial(ur) * Factorial(un-ur))
+}
+
+func reverseAny(s interface{}) {
+	n := reflect.ValueOf(s).Len()
+	swap := reflect.Swapper(s)
+	for i, j := 0, n-1; i < j; i, j = i+1, j-1 {
+		swap(i, j)
+	}
 }

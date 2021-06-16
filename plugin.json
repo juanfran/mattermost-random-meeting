@@ -1,0 +1,70 @@
+{
+    "id": "mattermost-random-meeting",
+    "name": "Mattermost random meeting",
+    "description": "Plugin to meet random users.",
+    "homepage_url": "https://github.com/juanfran/mattermost-random-meeting",
+    "support_url": "https://github.com/juanfran/mattermost-random-meeting/issues",
+    "release_notes_url": "https://github.com/juanfran/mattermost-random-meeting/releases/tag/v0.1.0",
+    "icon_path": "assets/starter-template-icon.svg",
+    "version": "0.1.0",
+    "min_server_version": "5.12.0",
+    "server": {
+        "executables": {
+            "linux-amd64": "server/dist/plugin-linux-amd64",
+            "darwin-amd64": "server/dist/plugin-darwin-amd64",
+            "windows-amd64": "server/dist/plugin-windows-amd64.exe"
+        }
+    },
+    "settings_schema": {
+        "header": "",
+        "footer": "",
+        "settings": [
+            {
+                "key": "Cron",
+                "display_name": "Recurrence",
+                "type": "dropdown",
+                "default": "@weekly",
+                "options": [
+                    {
+                        "display_name": "Hourly",
+                        "value": "@hourly"
+                    },
+                    {
+                        "display_name": "Daily",
+                        "value": "@daily"
+                    },
+                    {
+                        "display_name": "Weekly",
+                        "value": "@weekly"
+                    },
+                    {
+                        "display_name": "Monthly",
+                        "value": "@monthly"
+                    },
+                    {
+                        "display_name": "Custom",
+                        "value": "custom"
+                    }
+                ]
+            },
+            {
+                "key": "CustomCron",
+                "display_name": "Cron expression",
+                "type": "text",
+                "help_text": "Select custom recurrence a set a valid cron expression"
+            },
+            {
+                "key": "InitText",
+                "display_name": "Initial text",
+                "type": "text",
+                "default": "Let's chat!"
+            },
+            {
+                "key": "NumUsersPerMeeting",
+                "display_name": "Number of users per meeting",
+                "type": "number",
+                "default": 3
+            }
+        ]
+    }
+}

@@ -36,9 +36,8 @@ func Prepend(data []string, item string) []string {
 	return data
 }
 
-// todo
-func PrependSlice(data []string, prepend []string) [][]string {
-	data = append([][]string{prepend}, data...)
+func PrependSlice(data [][]string, item []string) [][]string {
+	data = append([][]string{item}, data...)
 	return data
 }
 

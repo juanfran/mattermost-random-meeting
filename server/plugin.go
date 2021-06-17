@@ -55,10 +55,7 @@ func (p *Plugin) addCronFunc() {
 func (p *Plugin) runMeetings() {
 	users := p.getAvailableUsers()
 
-	// todo
-	reverseAny(p.usersMeetings)
-
-	meetings := getMeetingsShuffleUsers(users, p.configuration.NumUsersPerMeeting, p.userMeetingsReversed)
+	meetings := getMeetingsShuffleUsers(users, p.configuration.NumUsersPerMeeting, p.usersMeetings)
 
 	for _, meeting := range meetings {
 		p.startMeeting(meeting)
@@ -66,12 +63,12 @@ func (p *Plugin) runMeetings() {
 }
 
 func (p *Plugin) startMeeting(meeting []string) {
-	maxMeetings := 50
+	maxMeetings := 100
 
-	p.usersMeetings = append(p.usersMeetings, meeting)
+	p.usersMeetings = PrependSlice(p.usersMeetings, meeting)
 
 	if len(p.usersMeetings) > maxMeetings {
-		_, p.usersMeetings = p.usersMeetings[0], p.usersMeetings[1:]
+		p.usersMeetings = p.usersMeetings[:len(p.usersMeetings)-1]
 	}
 
 	users := append(meeting, p.botUserID)

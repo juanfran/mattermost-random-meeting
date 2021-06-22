@@ -64,6 +64,12 @@
                 "display_name": "Number of users per meeting",
                 "type": "number",
                 "default": 3
+            },
+            {
+                "key": "MeetingRooms",
+                "display_name": "Meeting rooms",
+                "type": "text",
+                "default": ""
             }
         ]
     }

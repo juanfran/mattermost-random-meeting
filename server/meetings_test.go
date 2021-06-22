@@ -118,7 +118,7 @@ func TestGetUserListByDate(t *testing.T) {
 func TestOddGetMeetings(t *testing.T) {
 	assert := assert.New(t)
 
-	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7"}
+	users := []string{"user1", "user2", "user3", "user4", "user5", "user6", "user7", "user8", "user9", "user10", "user11"}
 
 	previousMeetings := [][]string{
 		{"user1", "user2", "user3"},
@@ -127,12 +127,15 @@ func TestOddGetMeetings(t *testing.T) {
 		{"user2", "user4", "user7"},
 	}
 
-	result := getMeetings(users, 3, previousMeetings)
+	result := getMeetings(users, 4, previousMeetings)
+
+	assert.Equal(3, len(result))
+
+	users = Remove(users, "user1")
+
+	result = getMeetings(users, 4, previousMeetings)
 
 	assert.Equal(2, len(result))
-	// todo: random fail
-	assert.True(meetingExist([]string{"user1", "user3", "user4", "user7"}, result))
-	assert.True(meetingExist([]string{"user2", "user5", "user6"}, result))
 }
 
 // need work

@@ -13,6 +13,7 @@ Go to **System Console > Plugins > Management** upload and enable the plugin.
 - **Recurrence** - daily, weekly or monthly meetings.
 - **Initial text** - The text that will be send to the users when is time to chat.
 - **Number of users per meeting** - Minimum users per meeting.
+- **MeetingRooms** - urls separated by commas added to every meeting start message.
 
 ## Usage
 

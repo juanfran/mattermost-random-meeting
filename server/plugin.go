@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/mattermost/mattermost-server/v5/model"
@@ -54,15 +55,23 @@ func (p *Plugin) addCronFunc() {
 
 func (p *Plugin) runMeetings() {
 	users := p.getAvailableUsers()
+	config := p.getConfiguration()
 
 	meetings := getMeetingsShuffleUsers(users, p.configuration.NumUsersPerMeeting, p.usersMeetings)
+	rooms := strings.Split(config.MeetingRooms, ",")
 
-	for _, meeting := range meetings {
-		p.startMeeting(meeting)
+	for index, meeting := range meetings {
+		meetingUrl := ""
+
+		if len(rooms) > index {
+			meetingUrl = rooms[index]
+		}
+
+		p.startMeeting(meeting, meetingUrl)
 	}
 }
 
-func (p *Plugin) startMeeting(meeting []string) {
+func (p *Plugin) startMeeting(meeting []string, meetingUrl string) {
 	maxMeetings := 100
 
 	p.usersMeetings = PrependSlice(p.usersMeetings, meeting)
@@ -85,6 +94,16 @@ func (p *Plugin) startMeeting(meeting []string) {
 
 	p.persistMeetings()
 	p.API.CreatePost(post)
+
+	if len(meetingUrl) > 0 {
+		post := &model.Post{
+			UserId:    p.botUserID,
+			ChannelId: channel.Id,
+			Message:   meetingUrl,
+		}
+
+		p.API.CreatePost(post)
+	}
 }
 
 func (p *Plugin) UserHasLeftTeam(c *plugin.Context, teamMember *model.TeamMember) {

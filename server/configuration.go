@@ -22,6 +22,7 @@ type configuration struct {
 	CustomCron         string
 	InitText           string
 	NumUsersPerMeeting int
+	MeetingRooms       string
 }
 
 // Clone shallow copies the configuration. Your implementation may require a deep copy if

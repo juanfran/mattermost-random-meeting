@@ -94,9 +94,10 @@ func getMeetingCandidates(userInMeeting []string, users []string, previousMeetin
 		for index, userId := range usersList {
 			maxCount := len(previousMeetings)
 			lenUsers := len(users)
+			defaultMaxCount := lenUsers * lenUsers
 
-			if maxCount > 40 {
-				maxCount = lenUsers * lenUsers
+			if maxCount > defaultMaxCount {
+				maxCount = defaultMaxCount - 1
 			}
 
 			count := getCountUserMeet(userMeeting, userId, previousMeetings[:maxCount])
@@ -157,7 +158,7 @@ func getMeetings(users []string, usersPerMeeting int, previousMeetings [][]strin
 			}
 		}
 
-		if len(meeting) < usersPerMeeting {
+		if len(meeting) < usersPerMeeting-1 {
 			for _, userIdFromIncrompleMeeting := range meeting {
 				meetings = sortMeetingBySize(meetings)
 				meetings[0] = append(meetings[0], userIdFromIncrompleMeeting)
